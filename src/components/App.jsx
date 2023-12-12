@@ -1,10 +1,19 @@
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchContacts } from 'redux/operations';
+import { getError, getIsLoading } from 'redux/selectors';
+
 import Form from './form/form';
 import Contacts from './contacts/contacts';
 import Filter from './filter/filter';
-import { useSelector } from 'react-redux';
-
 const App = () => {
-  let contacts = useSelector(state => state.contacts);
+  const dispatch = useDispatch();
+  const isLoading = useSelector(getIsLoading);
+  const error = useSelector(getError);
+
+  useEffect(() => {
+    dispatch(fetchContacts());
+  }, [dispatch]);
 
   return (
     <>
@@ -12,7 +21,8 @@ const App = () => {
       <Form />
       <h2>Contacts</h2>
       <Filter />
-      <Contacts data={contacts} />
+      {isLoading && !error && <p>Request in progress...</p>}
+      <Contacts />
     </>
   );
 };

@@ -1,13 +1,14 @@
 import s from './form.module.css';
 import PropTypes from 'prop-types';
 
+import { addContact } from 'redux/operations';
+import { getContacts } from 'redux/selectors';
 import { useDispatch, useSelector } from 'react-redux';
-import { addNumber } from 'redux/contactSlice';
 
 const Form = () => {
   const dispatch = useDispatch();
 
-  const contacts = useSelector(state => state.contacts);
+  const contacts = useSelector(getContacts);
 
   const submitForm = event => {
     event.preventDefault();
@@ -16,15 +17,16 @@ const Form = () => {
     const form = event.target;
     let nickname = form.elements.name.value;
     let number = form.elements.number.value;
+    let data = { name: nickname, phone: number };
 
     contacts.forEach(contact => {
-      if (contact.nickname.toLowerCase() === nickname.toLowerCase()) {
+      if (contact.name.toLowerCase() === nickname.toLowerCase()) {
         contactExists = true;
         alert('This contact is already in your list');
       }
     });
     if (!contactExists) {
-      dispatch(addNumber(nickname, number));
+      dispatch(addContact(data));
     }
 
     form.reset();

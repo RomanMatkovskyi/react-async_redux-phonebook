@@ -1,34 +1,37 @@
 import s from './contacts.module.css';
 import { useSelector, useDispatch } from 'react-redux';
-import { deleteNumber } from 'redux/contactSlice';
+
 import PropTypes from 'prop-types';
+import { deleteContact } from 'redux/operations';
+import { getContacts, getFilter } from 'redux/selectors';
 
 const Contacts = () => {
-  const value = useSelector(state => state.contacts);
-  const filter = useSelector(state => state.filter);
+  const contacts = useSelector(getContacts);
+  const filter = useSelector(getFilter);
   const dispatch = useDispatch();
-  const deleteContact = id => dispatch(deleteNumber(id));
+
+  const handleDelete = id => dispatch(deleteContact(id));
 
   const normalizedFilter = filter.toLowerCase();
-  const filteredList = value.filter(contact =>
-    contact.nickname.toLowerCase().includes(normalizedFilter)
+  const filteredList = contacts.filter(contact =>
+    contact.name.toLowerCase().includes(normalizedFilter)
   );
 
   return (
     <>
-      {value.length === 0 ? (
+      {!contacts || contacts.length === 0 ? (
         <p className={s.nocontacts}>No contacts found</p>
       ) : (
         <ul className={s.contactlist}>
-          {filteredList.map(({ id, nickname, number }) => (
+          {filteredList.map(({ id, name, phone }) => (
             <li key={id} id={id} className={s.contactitem}>
               <p>
-                {nickname}: {number}
+                {name}: {phone}
               </p>
               <button
                 type="button"
                 className={s.deletebutton}
-                onClick={() => deleteContact(id)}
+                onClick={() => handleDelete(id)}
               >
                 x
               </button>

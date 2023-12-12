@@ -1,28 +1,53 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { nanoid } from 'nanoid';
+import { fetchContacts, addContact, deleteContact } from "./operations";
 
-const INITIALCONTACTS = [];
+
+const INITIALCONTACTS = {
+    items: [],
+    isLoading: false,
+    error: null
+};
+
+const handlePending = state => {
+  state.isLoading = true;
+};
+
+const handleRejected = (state, action) => {
+  state.isLoading = false;
+  state.error = action.payload;
+};
+
+
 
 const contactSlice = createSlice({
-  name: 'contact',
+  name: 'contacts',
   initialState: INITIALCONTACTS,
-  reducers: {
-    addNumber: {
-      reducer(state, action) {
-        return [...state, action.payload];
-      },
-      prepare(nickname, number) {
-        return {
-          type: 'contact/addContact',
-          payload: { id: nanoid(), nickname, number },
-        };
-      },
-    },
-    deleteNumber(state, action) {
-      return state.filter(contact => contact.id !== action.payload);
-    },
-  },
+  extraReducers: builder => {
+    builder
+      .addCase(fetchContacts.pending, handlePending)
+      .addCase(fetchContacts.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
+        state.items = action.payload;
+      })
+      .addCase(fetchContacts.rejected, handleRejected)
+
+    .addCase(addContact.pending, handlePending)
+    .addCase(addContact.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
+        state.items = [...state.items, action.payload]
+      })
+      .addCase(addContact.rejected, (handleRejected))
+      
+    .addCase(deleteContact.pending, handlePending)
+      .addCase(deleteContact.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
+        state.items = state.items.filter(contact => contact.id !== action.payload.id)
+      })
+      .addCase(deleteContact.rejected, handleRejected)
+  }
 });
 
-export const { addNumber, deleteNumber } = contactSlice.actions;
 export const contactsReducer = contactSlice.reducer;
